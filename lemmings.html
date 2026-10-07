@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <meta
+      name="Description"
+      content="Lemmings, played on top of sandspiel's falling sand: dig, bash and build through sand, water, lava and fire to lead the lemmings home."
+    />
+    <meta name="theme-color" content="#121017" />
+    <title>sandspiel lemmings</title>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/assets/favicon-32x32.png"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Inconsolata:400,700"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div id="game">
+      <header id="topbar">
+        <a href="/" class="brand">sandspiel</a>
+        <span class="brand-sub">lemmings</span>
+        <span id="level-name"></span>
+        <button id="levels" class="small" title="Level select">levels</button>
+        <button id="sound" class="small" title="Sound (M)">sound on</button>
+      </header>
+
+      <div id="stage">
+        <canvas id="fluid-canvas"></canvas>
+        <canvas id="sand-canvas"></canvas>
+        <canvas id="lem-canvas"></canvas>
+
+        <div id="card" class="hidden"></div>
+      </div>
+
+      <div id="status">
+        <span id="hover-info"></span>
+        <span class="stat">OUT <b id="stat-out">0</b></span>
+        <span class="stat">IN <b id="stat-in">0%</b></span>
+        <span class="stat">TIME <b id="stat-time">0:00</b></span>
+      </div>
+
+      <div id="toolbar">
+        <div class="rate">
+          <button id="rate-down" title="Slower release (-)">&minus;</button>
+          <span class="rate-value"><b id="rate">50</b><small>release</small></span>
+          <button id="rate-up" title="Faster release (+)">+</button>
+        </div>
+        <div id="skills"></div>
+        <div class="controls">
+          <button id="pause" title="Pause (P)">pause</button>
+          <button id="fast" title="Fast forward (F)">fast</button>
+          <button id="restart" title="Restart (R)">retry</button>
+          <button id="nuke" title="Nuke (N, twice)">nuke</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

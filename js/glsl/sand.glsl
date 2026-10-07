@@ -129,6 +129,11 @@ void main() {
     hue = fract(fract(data.b * 2.) * 0.5) - 0.3;
     saturation = 0.7 * (data.g + 0.4) + data.b * 0.2;
     lightness = 0.9 * (data.g + 0.9);
+  } else if (type == 20) { // dirt
+    float grain = snoise2(floor(uv * resolution / dpi) * 0.35);
+    hue = 0.055 + data.g * 0.03;
+    saturation = 0.45;
+    lightness = 0.32 + data.g * 0.18 + grain * 0.05;
   }
   if (isSnapshot == false) {
     lightness *= (0.975 + snoise2(floor(uv * resolution / dpi)) * 0.025);

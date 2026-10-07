@@ -34,6 +34,7 @@ pub enum Species {
     Dust = 14,
     Oil = 16,
     Rocket = 17,
+    Dirt = 20,
 }
 
 impl Species {
@@ -41,6 +42,7 @@ impl Species {
         match self {
             Species::Empty => {}
             Species::Wall => {}
+            Species::Dirt => {}
             Species::Sand => update_sand(cell, api),
             Species::Dust => update_dust(cell, api),
             Species::Water => update_water(cell, api),

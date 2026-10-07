@@ -42,6 +42,12 @@ const Info = () => {
       </p>
       <br />
       <p>
+        Want a goal? Try <a href="/lemmings">sandspiel lemmings</a>: lead the
+        lemmings home by digging, bashing and building through the same sand,
+        water and lava.
+      </p>
+      <br />
+      <p>
         If you want to read more the inspiration, architecture, and history of
         the game, I wrote a blog post (it gets technical in the middle):&nbsp;
         <a href="https://maxbittker.com/making-sandspiel">Making Sandspiel</a>
