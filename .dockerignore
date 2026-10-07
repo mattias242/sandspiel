@@ -1,0 +1,7 @@
+.git
+node_modules
+dist
+crate/target
+crate/pkg
+crate/pkg-node
+functions/node_modules
