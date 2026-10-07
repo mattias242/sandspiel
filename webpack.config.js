@@ -24,7 +24,12 @@ module.exports = (env, argv) => {
         { from: "assets/*" },
       ],
     }),
-    new HtmlWebpackPlugin({ template: "index.html" }),
+    new HtmlWebpackPlugin({ template: "index.html", chunks: ["main"] }),
+    new HtmlWebpackPlugin({
+      template: "lemmings.html",
+      filename: "lemmings.html",
+      chunks: ["lemmings"],
+    }),
   ];
 
   // Only add service worker in production to avoid watch mode warnings
@@ -32,6 +37,7 @@ module.exports = (env, argv) => {
     plugins.push(
       new GenerateSW({
         navigateFallback: "index.html",
+        navigateFallbackDenylist: [/^\/lemmings/],
         runtimeCaching: [
           {
             urlPattern: /\.html$/,
@@ -53,7 +59,10 @@ module.exports = (env, argv) => {
   }
 
   return {
-    entry: "./js/bootstrap.js",
+    entry: {
+      main: "./js/bootstrap.js",
+      lemmings: "./js/lemmings/bootstrap.js",
+    },
     output: {
       path: dist,
       filename: "[name].[contenthash].js",
@@ -62,7 +71,9 @@ module.exports = (env, argv) => {
     devServer: {
       static: dist,
       allowedHosts: "all",
-      historyApiFallback: true,
+      historyApiFallback: {
+        rewrites: [{ from: /^\/lemmings/, to: "/lemmings.html" }],
+      },
     },
     experiments: {
       asyncWebAssembly: true,

@@ -544,6 +544,8 @@ class Index extends React.Component {
         </button>
         {Object.keys(Species)
           .filter((x) => !Number.isInteger(Number.parseInt(x)))
+          // Dirt is a Lemmings terrain, not a sandbox element.
+          .filter((x) => x !== "Dirt")
           .map((n) =>
             ElementButton(n, selectedElement, (id) =>
               this.setState({ selectedElement: id })

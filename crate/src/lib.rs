@@ -5,6 +5,7 @@ extern crate rand_xoshiro;
 extern crate wasm_bindgen;
 extern crate web_sys;
 
+mod lemmings;
 mod species;
 mod utils;
 
@@ -283,6 +284,41 @@ impl Universe {
         }
     }
 
+    /// Fills a rectangle, overwriting whatever is there.
+    pub fn fill_rect(&mut self, x: i32, y: i32, w: i32, h: i32, species: Species) {
+        for px in x.max(0)..(x + w).min(self.width) {
+            for py in y.max(0)..(y + h).min(self.height) {
+                let i = self.get_index(px, py);
+                self.cells[i] = Cell {
+                    species,
+                    ra: 100 + (self.rng.gen::<f32>() * 50.) as u8,
+                    rb: 0,
+                    clock: self.generation,
+                };
+            }
+        }
+    }
+
+    pub fn species_at(&self, x: i32, y: i32) -> Species {
+        if x < 0 || x > self.width - 1 || y < 0 || y > self.height - 1 {
+            return Species::Wall;
+        }
+        self.get_cell(x, y).species
+    }
+
+    /// Sets every wind cell to still air, for running without the fluid
+    /// simulation.
+    pub fn calm_winds(&mut self) {
+        for w in self.winds.iter_mut() {
+            *w = Wind {
+                dx: 126,
+                dy: 126,
+                pressure: 0,
+                density: 0,
+            };
+        }
+    }
+
     pub fn push_undo(&mut self) {
         self.undo_stack.push_front(self.cells.clone());
         self.undo_stack.truncate(50);
@@ -363,6 +399,7 @@ impl Universe {
             Species::Empty => 500,
             Species::Wall => 500,
             Species::Cloner => 500,
+            Species::Dirt => 500,
 
             Species::Stone => 70,
             Species::Wood => 70,

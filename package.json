@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --mode=production",
     "start": "webpack-dev-server --host 0.0.0.0",
-    "deploy": "webpack --mode=production && gh-pages -d dist"
+    "deploy": "webpack --mode=production && gh-pages -d dist",
+    "verify-lemmings": "cd crate && wasm-pack build --release --target nodejs --out-dir pkg-node && cd .. && node js/lemmings/verify.mjs"
   },
   "repository": {
     "type": "git",

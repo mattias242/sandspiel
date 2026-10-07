@@ -652,7 +652,7 @@ function startFluid({ universe }) {
     // densityRead -> velocityWrite
     for (let i = 0; i < pointers.length; i++) {
       const pointer = pointers[i];
-      if (pointer.moved && window.UI.state.selectedElement < 0) {
+      if (pointer.moved && window.UI && window.UI.state.selectedElement < 0) {
         splat(pointer.x, pointer.y, pointer.dx, pointer.dy, pointer.color);
         pointer.moved = false;
       }

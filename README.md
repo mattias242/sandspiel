@@ -25,6 +25,22 @@ npm run start;
 cargo watch -s 'wasm-pack build'
 ```
 
+### 🐹 Lemmings
+
+[`/lemmings`](https://sandspiel.club/lemmings) is a Lemmings-style puzzle game built on the same simulation. Lemmings walk on anything solid, get buried by falling sand, drown in water and burn in lava, and the classic skills (climber, floater, bomber, blocker, builder, basher, miner, digger) dig into and build onto the cell grid. Builders lay wood, so bridges can burn.
+
+- `crate/src/lemmings.rs`: lemming behaviour, run once per `Universe::tick`
+- `js/lemmings/levels.js`: the levels, each painted into a `Universe`
+- `js/lemmings/index.js`, `sprites.js`: the game UI and pixel-art lemmings
+
+Every level is checked headlessly with a scripted solution (and checked to be unsolvable without skills):
+
+```
+npm run verify-lemmings
+```
+
+The Rust behaviour tests run natively: `cd crate && cargo test --target x86_64-unknown-linux-gnu` (use your host's target triple).
+
 a successor to my previous efforts in [javascript](https://github.com/MaxBittker/dust) and [lua](https://github.com/MaxBittker/sand-toy)
 
 Fluid simulation code adopted from
