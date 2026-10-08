@@ -250,4 +250,71 @@ export const LEVELS = [
       rect(u, 170, 136, 120, 14, S.Empty);
     },
   },
+  {
+    name: "Burning bridges",
+    material: "Wood",
+    music: "wood",
+    hint:
+      "Wood makes sturdy bridges and is easy to dig through. But where lava touches it, it catches fire, and the fire eats along the wood.",
+    lemmings: 12,
+    save: 10,
+    releaseRate: 70,
+    seconds: 150,
+    entrance: [30, 40],
+    exit: [298, 117],
+    dir: 1,
+    skills: { digger: 2, basher: 2 },
+    build(u, S) {
+      // Lava lake along the bottom, on a steel floor.
+      rect(u, 0, 228, WIDTH, 12, S.Wall);
+      rect(u, 0, 216, WIDTH, 12, S.Lava);
+      // Left cliff under the hatch.
+      rect(u, 0, 70, 58, 146, S.Dirt);
+      // Right cliff: a pool of lava on top, the exit cave inside.
+      rect(u, 268, 98, 52, 118, S.Dirt);
+      rect(u, 268, 88, 4, 10, S.Dirt);
+      rect(u, 316, 88, 4, 10, S.Dirt);
+      rect(u, 272, 92, 44, 6, S.Lava);
+      rect(u, 268, 104, 46, 14, S.Empty);
+      // Upper wooden bridge; a post at its end stands in the lava.
+      rect(u, 58, 70, 244, 5, S.Wood);
+      rect(u, 294, 75, 6, 20, S.Wood);
+      // Lower wooden walkway, 43 below, into the exit cave, with a rail at its end.
+      rect(u, 100, 118, 168, 5, S.Wood);
+      rect(u, 100, 110, 3, 8, S.Wood);
+      // Wooden door in the cave mouth.
+      rect(u, 270, 104, 10, 14, S.Wood);
+    },
+  },
+  {
+    name: "Slow burn",
+    material: "Fire",
+    music: "fire",
+    hint:
+      "Fire burns wood away and any lemming it touches, then dies out. It creeps along wood too, so watch where the beams lead.",
+    lemmings: 12,
+    save: 10,
+    releaseRate: 75,
+    seconds: 150,
+    entrance: [50, 112],
+    exit: [300, 146],
+    dir: 1,
+    skills: { basher: 2 },
+    build(u, S) {
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      rect(u, 0, 147, WIDTH, 85, S.Dirt);
+      // The pen: steel on the left, a dirt wall on the right, a wooden floor.
+      rect(u, 0, 90, 8, 57, S.Wall);
+      rect(u, 8, 144, 92, 3, S.Wood);
+      rect(u, 100, 100, 12, 47, S.Dirt);
+      // The barricade, already burning.
+      rect(u, 160, 104, 14, 43, S.Wood);
+      rect(u, 156, 122, 4, 25, S.Fire);
+      rect(u, 174, 122, 4, 25, S.Fire);
+      // A wooden beam from the barricade up, across and down into the pen.
+      rect(u, 165, 44, 4, 60, S.Wood);
+      rect(u, 8, 40, 161, 4, S.Wood);
+      rect(u, 8, 44, 4, 100, S.Wood);
+    },
+  },
 ];

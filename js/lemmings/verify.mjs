@@ -72,6 +72,16 @@ const SOLUTIONS = {
     // The first one out digs down through the frozen lake into the cave.
     rule("digger", (l) => walking(l) && l.dir > 0 && l.x >= 176 && l.y < 112),
   ],
+  "Burning bridges": [
+    // Dig through the upper bridge as soon as the first lemming is over the lower walkway.
+    rule("digger", (l) => walking(l) && l.y < 75 && l.x >= 110 && l.x <= 120),
+    // Bash the wooden door of the exit cave.
+    rule("basher", (l) => walking(l) && l.y > 100 && l.dir > 0 && l.x >= 264),
+  ],
+  "Slow burn": [
+    // Wait until the barricade has burned away, then bash out of the pen.
+    rule("basher", (l) => walking(l) && l.dir > 0 && l.x >= 94 && l.x <= 99, 1, 1200),
+  ],
 };
 
 function play(level, solution, { seed = 0, verbose = false } = {}) {
