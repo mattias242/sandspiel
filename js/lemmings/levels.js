@@ -392,40 +392,36 @@ export const LEVELS = [
     material: "Gas",
     music: "gas",
     hint:
-      "Gas is harmless to walk through, but it seeps out of any hole you make, and one flame sets the whole cloud ablaze.",
+      "Gas is harmless to walk through, but one spark sets the whole cloud ablaze. Anything inside burns, lemmings and wood alike.",
     lemmings: 14,
     save: 11,
     releaseRate: 30,
     seconds: 180,
-    entrance: [100, 60],
-    exit: [242, 133],
+    entrance: [90, 60],
+    exit: [285, 133],
     dir: 1,
-    skills: { climber: 1, digger: 2 },
+    skills: { climber: 1, bomber: 1, digger: 1 },
     build(u, S) {
       rect(u, 0, 100, WIDTH, HEIGHT - 100, S.Dirt);
       rect(u, 0, 228, WIDTH, 12, S.Wall);
       // The pen: a steel wall with a lip on the left, a dirt wall on the right
       // that only a climber can get over.
-      rect(u, 50, 70, 6, 30, S.Wall);
-      rect(u, 56, 70, 4, 2, S.Wall);
-      rect(u, 150, 88, 6, 12, S.Dirt);
-      // The cave under a 4-thick roof, full of gas, with three wooden barricades.
-      rect(u, 60, 104, 190, 30, S.Gas);
-      rect(u, 54, 104, 6, 34, S.Wall);
-      rect(u, 54, 134, 202, 4, S.Wall);
-      rect(u, 250, 60, 6, 78, S.Wall);
-      rect(u, 160, 104, 2, 30, S.Wood);
-      rect(u, 200, 104, 2, 30, S.Wood);
-      rect(u, 232, 104, 2, 30, S.Wood);
-      // A lava lamp on the roof: a steel box holding lava, with a window above
-      // head height and a steel lip over the ground in front of it.
-      rect(u, 226, 84, 14, 16, S.Wall);
-      rect(u, 227, 88, 12, 8, S.Empty);
-      rect(u, 226, 92, 1, 4, S.Empty);
-      rect(u, 227, 96, 12, 4, S.Lava);
-      rect(u, 220, 91, 6, 1, S.Wall);
-      // An overhang on the end wall, so a climber drops back.
-      rect(u, 244, 60, 6, 2, S.Wall);
+      rect(u, 40, 70, 6, 30, S.Wall);
+      rect(u, 46, 70, 4, 2, S.Wall);
+      rect(u, 140, 88, 6, 12, S.Dirt);
+      // The cave under a 4-thick dirt roof, walled in steel and full of gas.
+      rect(u, 50, 104, 250, 30, S.Gas);
+      rect(u, 44, 104, 6, 34, S.Wall);
+      rect(u, 44, 134, 262, 4, S.Wall);
+      rect(u, 300, 50, 6, 88, S.Wall);
+      // Three wooden barricades, each with a gap above it so the gas is one
+      // cloud (too narrow and too high for a lemming).
+      rect(u, 160, 108, 2, 26, S.Wood);
+      rect(u, 205, 108, 2, 26, S.Wood);
+      rect(u, 250, 108, 2, 26, S.Wood);
+      // A crack in the roof between the second and third barricade: a lemming
+      // walking over it drops into the gas.
+      rect(u, 228, 100, 1, 4, S.Empty);
     },
   },
   {

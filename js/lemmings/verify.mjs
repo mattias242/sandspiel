@@ -207,14 +207,6 @@ const SOLUTIONS = {
     // Once the fire in the tank is out, dig down next to the blocker.
     rule("digger", (l) => walking(l) && l.x >= 104 && l.x <= 112, 1, 3300),
   ],
-  "Firedamp": [
-    // Send one lemming over the pen wall.
-    rule("climber", (l) => walking(l) && l.x >= 140 && l.dir > 0),
-    // It digs a vent right in front of the lamp, under the steel lip.
-    rule("digger", (l) => walking(l) && l.x >= 222 && l.x <= 225 && l.y === 99),
-    // When the cave has burned clear, dig the others down into it.
-    rule("digger", (l) => walking(l) && l.x >= 100 && l.x <= 140 && l.y < 100, 1, 2100),
-  ],
   "Powder keg": [
     // Everyone walks across the dust and drops into the pit on the far bank.
     // The last lemming out of the hatch (#11) digs beside the gorge, down
@@ -222,6 +214,15 @@ const SOLUTIONS = {
     rule("digger", (l) => walking(l) && l.index === 11 && l.x >= 122 && l.x <= 146),
     // When the fire is out, bash from the pit back into the empty gorge.
     rule("basher", (l) => walking(l) && l.x <= 240 && l.y > 110 && l.dir < 0, 1, 2400),
+  ],
+  "Firedamp": [
+    // Send one lemming over the pen wall. It walks along the roof and drops
+    // through the crack into the gas, between barricades 2 and 3.
+    rule("climber", (l) => walking(l) && l.x >= 130 && l.dir > 0),
+    // Light its fuse down there: 5 s later it explodes inside the cloud.
+    rule("bomber", (l) => walking(l) && l.y === 133 && l.x >= 207 && l.x <= 249),
+    // When the cave has burned clear, dig the others down into it.
+    rule("digger", (l) => walking(l) && l.x >= 80 && l.x <= 120 && l.y < 100, 1, 2100),
   ],
 };
 
