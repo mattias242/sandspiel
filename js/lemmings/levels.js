@@ -354,6 +354,112 @@ export const LEVELS = [
     },
   },
   {
+    name: "Black gold",
+    material: "Oil",
+    music: "oil",
+    hint:
+      "Oil drowns lemmings just like water, but oil burns. Set it alight, keep everyone well back, and the tank will burn itself empty.",
+    lemmings: 16,
+    save: 13,
+    releaseRate: 20,
+    seconds: 150,
+    entrance: [40, 40],
+    exit: [262, 119],
+    dir: 1,
+    skills: { blocker: 1, bomber: 1, digger: 1 },
+    build(u, S) {
+      // A hill around the hatch that runs down onto the flat lid of the tank.
+      terrain(u, 0, WIDTH, (x) => (x < 96 ? 72 + 18 * Math.pow(Math.max(0, x - 30) / 66, 2) : 90), HEIGHT, S.Dirt);
+      rect(u, 0, 228, WIDTH, 12, S.Wall);
+      rect(u, 0, 30, 4, 50, S.Wall);
+      // The tank under the lid: 19 rows of oil floating on 2 rows of water,
+      // with a little air between the oil and the lid.
+      rect(u, 94, 96, 6, 28, S.Wall);
+      rect(u, 94, 120, 212, 4, S.Wall);
+      rect(u, 300, 56, 6, 68, S.Wall);
+      rect(u, 100, 96, 200, 3, S.Empty);
+      rect(u, 100, 99, 200, 19, S.Oil);
+      rect(u, 100, 118, 200, 2, S.Water);
+      // Near the far end the lid is steel, with a dry well sunk into the oil:
+      // whoever falls in stays there.
+      rect(u, 268, 90, 32, 6, S.Wall);
+      rect(u, 278, 96, 12, 11, S.Dirt);
+      rect(u, 280, 90, 8, 15, S.Empty);
+    },
+  },
+  {
+    name: "Firedamp",
+    material: "Gas",
+    music: "gas",
+    hint:
+      "Gas is harmless to walk through, but it seeps out of any hole you make, and one flame sets the whole cloud ablaze.",
+    lemmings: 14,
+    save: 11,
+    releaseRate: 30,
+    seconds: 180,
+    entrance: [100, 60],
+    exit: [242, 133],
+    dir: 1,
+    skills: { climber: 1, digger: 2 },
+    build(u, S) {
+      rect(u, 0, 100, WIDTH, HEIGHT - 100, S.Dirt);
+      rect(u, 0, 228, WIDTH, 12, S.Wall);
+      // The pen: a steel wall with a lip on the left, a dirt wall on the right
+      // that only a climber can get over.
+      rect(u, 50, 70, 6, 30, S.Wall);
+      rect(u, 56, 70, 4, 2, S.Wall);
+      rect(u, 150, 88, 6, 12, S.Dirt);
+      // The cave under a 4-thick roof, full of gas, with three wooden barricades.
+      rect(u, 60, 104, 190, 30, S.Gas);
+      rect(u, 54, 104, 6, 34, S.Wall);
+      rect(u, 54, 134, 202, 4, S.Wall);
+      rect(u, 250, 60, 6, 78, S.Wall);
+      rect(u, 160, 104, 2, 30, S.Wood);
+      rect(u, 200, 104, 2, 30, S.Wood);
+      rect(u, 232, 104, 2, 30, S.Wood);
+      // A lava lamp on the roof: a steel box holding lava, with a window above
+      // head height and a steel lip over the ground in front of it.
+      rect(u, 226, 84, 14, 16, S.Wall);
+      rect(u, 227, 88, 12, 8, S.Empty);
+      rect(u, 226, 92, 1, 4, S.Empty);
+      rect(u, 227, 96, 12, 4, S.Lava);
+      rect(u, 220, 91, 6, 1, S.Wall);
+      // An overhang on the end wall, so a climber drops back.
+      rect(u, 244, 60, 6, 2, S.Wall);
+    },
+  },
+  {
+    name: "Powder keg",
+    material: "Dust",
+    music: "dust",
+    hint:
+      "Dust is solid like sand: lemmings can walk on it and dig through it. But one touch of flame turns a whole heap of dust into fire.",
+    lemmings: 12,
+    save: 10,
+    releaseRate: 40,
+    seconds: 180,
+    entrance: [80, 60],
+    exit: [226, 145],
+    dir: 1,
+    skills: { digger: 1, basher: 1 },
+    build(u, S) {
+      rect(u, 0, 100, WIDTH, HEIGHT - 100, S.Dirt);
+      rect(u, 0, 228, WIDTH, 12, S.Wall);
+      rect(u, 40, 50, 4, 50, S.Wall);
+      // The gorge, full of dust, widening under the far bank at the bottom.
+      rect(u, 150, 100, 60, 46, S.Dust);
+      rect(u, 210, 130, 22, 16, S.Dust);
+      rect(u, 150, 146, 82, 4, S.Wall);
+      rect(u, 150, 140, 4, 6, S.Wall); // a steel stump at the left end of the floor
+      // A tongue of dust under the near bank, and a pocket of lava below it.
+      rect(u, 124, 138, 26, 8, S.Dust);
+      rect(u, 118, 148, 32, 5, S.Lava);
+      // A pit on the far bank that nobody climbs out of.
+      rect(u, 236, 100, 36, 16, S.Empty);
+      rect(u, 272, 80, 6, 36, S.Wall);
+    },
+  },
+  {
     name: "Acid test",
     material: "Acid",
     music: "acid",
