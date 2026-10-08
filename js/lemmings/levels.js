@@ -466,4 +466,118 @@ export const LEVELS = [
       rect(u, 218, 190, 3, 1, S.Empty);
     },
   },
+  {
+    name: "Termites",
+    material: "Mite",
+    music: "mite",
+    hint:
+      "Mites are harmless to lemmings, but they chew through wood: doors, and your builders' steps too. Water kills them.",
+    lemmings: 20,
+    save: 17,
+    releaseRate: 50,
+    seconds: 150,
+    entrance: [105, 135],
+    exit: [296, 182],
+    dir: 1,
+    skills: { basher: 1, builder: 2 },
+    build(u, S) {
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      rect(u, 0, 0, 4, 232, S.Wall);
+      rect(u, WIDTH - 4, 0, 4, 232, S.Wall);
+      // Start cave (floor y 180); everything right of it is 3 lower (floor y 183).
+      rect(u, 4, 180, 140, 52, S.Dirt);
+      rect(u, 144, 183, WIDTH - 148, 49, S.Dirt);
+      // A pool of water behind a dirt dam, far left.
+      rect(u, 4, 175, 60, 5, S.Water);
+      rect(u, 64, 160, 6, 20, S.Dirt);
+      // Steel wall with a wooden door.
+      rect(u, 150, 0, 8, 150, S.Wall);
+      rect(u, 150, 150, 8, 33, S.Wood);
+      // A dirt fence too high to step over. Water (and mites) can pass the
+      // slot under it; lemmings can't.
+      rect(u, 242, 178, 6, 3, S.Dirt);
+      // Termites, scattered along the corridor.
+      for (let i = 0; i < 48; i++) {
+        rect(u, 161 + ((i * 37) % 79), 150 + ((i * 11) % 30), 1, 1, S.Mite);
+      }
+    },
+  },
+  {
+    name: "Two fountains",
+    material: "Cloner",
+    music: "cloner",
+    hint:
+      "A cloner copies whatever touches it and never stops until it is buried. One pours sand, one pours water.",
+    lemmings: 20,
+    save: 17,
+    releaseRate: 50,
+    seconds: 120,
+    entrance: [80, 120],
+    exit: [290, 149],
+    dir: 1,
+    skills: { basher: 2 },
+    build(u, S) {
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      rect(u, 0, 0, 4, 232, S.Wall);
+      rect(u, WIDTH - 4, 0, 4, 232, S.Wall);
+      // Ground on both sides of a deep pit (x 130..153, 81 deep).
+      rect(u, 4, 150, 126, 82, S.Dirt);
+      rect(u, 154, 150, 162, 82, S.Dirt);
+      rect(u, 130, 231, 24, 1, S.Dirt);
+      // A hill left of the pen.
+      terrain(u, 4, 46, (x) => 150 - 44 * Math.sin(((x - 4) / 42) * 1.5), 150, S.Dirt);
+      // The pen: steel walls and roof, a dirt door on the right.
+      rect(u, 46, 96, 64, 6, S.Wall);
+      rect(u, 46, 102, 4, 48, S.Wall);
+      rect(u, 100, 102, 10, 48, S.Dirt);
+      // A water cloner in the back wall (it touches one drop). Its water fills a
+      // sump behind a low steel sill, then spills over and floods the pen.
+      rect(u, 50, 150, 12, 10, S.Empty);
+      rect(u, 62, 146, 2, 4, S.Wall);
+      rect(u, 49, 119, 2, 1, S.Wall);
+      rect(u, 49, 121, 2, 1, S.Wall);
+      rect(u, 49, 120, 1, 1, S.Cloner);
+      rect(u, 50, 120, 1, 1, S.Water);
+      // A sand cloner hanging above the pit (it touches one grain).
+      rect(u, 141, 136, 2, 1, S.Cloner);
+      rect(u, 141, 135, 1, 1, S.Sand);
+    },
+  },
+  {
+    name: "Lift-off",
+    material: "Rocket",
+    music: "rocket",
+    hint:
+      "A rocket copies the first thing that touches it and flies off trailing it. Until then, a pit full of rockets is a floor.",
+    lemmings: 20,
+    save: 17,
+    releaseRate: 50,
+    seconds: 120,
+    entrance: [70, 118],
+    exit: [170, 189],
+    dir: 1,
+    skills: { basher: 2 },
+    build(u, S) {
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      rect(u, 0, 0, 4, 232, S.Wall);
+      rect(u, WIDTH - 4, 0, 4, 232, S.Wall);
+      rect(u, 4, 150, WIDTH - 8, 82, S.Dirt);
+      // A steel pit packed with rockets (40 deep); the exit is at its bottom.
+      rect(u, 138, 150, 64, 44, S.Wall);
+      rect(u, 140, 150, 60, 40, S.Rocket);
+      // A tank of gas on the right, closed by a dirt wall.
+      rect(u, 206, 114, 38, 6, S.Wall);
+      rect(u, 240, 120, 4, 30, S.Wall);
+      rect(u, 206, 120, 4, 30, S.Dirt);
+      rect(u, 210, 120, 30, 30, S.Gas);
+      // Far left: a water cloner (it touched one drop) fills a sump behind a low
+      // steel sill; then the water creeps right toward the rockets.
+      rect(u, 8, 150, 12, 20, S.Empty);
+      rect(u, 20, 146, 2, 4, S.Wall);
+      rect(u, 4, 119, 2, 1, S.Wall);
+      rect(u, 4, 121, 2, 1, S.Wall);
+      rect(u, 4, 120, 1, 1, S.Cloner);
+      rect(u, 5, 120, 1, 1, S.Water);
+    },
+  },
 ];

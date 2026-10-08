@@ -150,6 +150,22 @@ const SOLUTIONS = {
       rule("digger", (l, f) => walking(l) && first(l, f) && ready(l, f)),
     ];
   })(),
+  "Termites": [
+    // Wait until the mites have eaten through the door, then flood them.
+    rule("basher", (l) => walking(l) && l.dir < 0 && l.x <= 74, 1, 1800),
+    // Once the corridor is under water, build the steps up to the exit.
+    rule("builder", (l) => walking(l) && l.dir > 0 && l.x >= 232 && l.x <= 233, 1, 2400),
+  ],
+  "Two fountains": [
+    // Wait until the sand has filled the pit and buried its own cloner (it
+    // stops at ~43 s), then bash out of the pen before the water gets deep.
+    rule("basher", (l) => walking(l) && l.dir > 0 && l.x >= 96 && l.x <= 98, 1, 2700),
+  ],
+  "Lift-off": [
+    // Bash the gas tank open. The gas drifts onto the rockets, they copy it and
+    // fly off as harmless gas, and the lemmings drop 40 cells onto the exit.
+    rule("basher", (l) => walking(l) && l.dir > 0 && l.x >= 201 && l.x <= 205, 1, 600),
+  ],
 };
 
 function play(level, solution, { seed = 0, verbose = false } = {}) {
