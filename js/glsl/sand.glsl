@@ -3,6 +3,8 @@ uniform float t;
 uniform float dpi;
 uniform vec2 resolution;
 uniform bool isSnapshot;
+uniform bool lemmings;
+uniform vec2 size;
 uniform sampler2D backBuffer;
 uniform sampler2D data;
 
@@ -25,6 +27,8 @@ void main() {
   vec2 textCoord = ((uv * vec2(0.5, -0.5)) + vec2(0.5)).yx;
   // vec3 bb = texture2D(backBuffer, (uv * 0.5) + vec2(0.5)).rgb;
 
+  // The cell above, for the lemmings theme's lit top edges.
+  vec4 above = texture2D(data, textCoord - vec2(1.0 / size.y, 0.0));
   vec4 data = texture2D(data, textCoord);
   int type = int((data.r * 255.) + 0.1);
   float hue = 0.0;
@@ -139,5 +143,38 @@ void main() {
     lightness *= (0.975 + snoise2(floor(uv * resolution / dpi)) * 0.025);
   }
   color = hsv2rgb(vec3(hue, saturation, lightness));
+
+  // Lemmings theme: a dark blue sky, golden earth and riveted steel.
+  if (lemmings) {
+    vec2 cell = floor(vec2(textCoord.y * size.x, textCoord.x * size.y));
+    bool open = int((above.r * 255.) + 0.1) == 0;
+    a = 1.0;
+    if (type == 0) {
+      color = vec3(0.03, 0.03, 0.2);
+    } else if (type == 20) { // dirt
+      float blob = snoise2(cell * 0.07) * 0.5 + 0.5;
+      float grain = snoise2(cell * 0.45);
+      float crack = min(abs(snoise2(cell * 0.055 + 3.1)), abs(snoise2(cell * 0.09 + 7.3)) * 1.4);
+      color = mix(vec3(0.6, 0.34, 0.07), vec3(0.95, 0.68, 0.27), blob * 0.7 + data.g * 0.6);
+      color *= 0.9 + grain * 0.1;
+      if (crack < 0.035) color = vec3(0.36, 0.18, 0.04);
+      if (open) color = vec3(1.0, 0.82, 0.42);
+    } else if (type == 1) { // steel
+      vec2 p = mod(cell, 8.0);
+      color = vec3(0.56, 0.58, 0.64);
+      if (p.x < 1.0 || p.y < 1.0) color = vec3(0.78, 0.8, 0.85);
+      if (p.x > 6.0 || p.y > 6.0) color = vec3(0.3, 0.31, 0.36);
+      if ((p.x == 2.0 || p.x == 5.0) && (p.y == 2.0 || p.y == 5.0)) color = vec3(0.86, 0.88, 0.92);
+    } else if (type == 2) { // sand
+      color = vec3(0.98, 0.84, 0.42) * (0.82 + data.g * 0.35);
+    } else if (type == 13) { // stone
+      color = vec3(0.5, 0.46, 0.44) * (0.75 + data.g * 0.5);
+      if (open) color *= 1.25;
+    } else if (type == 8) { // lava
+      color = vec3(1.0, 0.3 + data.g * 0.25 + noise * 0.12, 0.04);
+    } else if (type == 7) { // wood: the builder's bricks
+      color = vec3(0.86, 0.6, 0.32) * (0.8 + data.g * 0.3);
+    }
+  }
   gl_FragColor = vec4(color, a);
 }

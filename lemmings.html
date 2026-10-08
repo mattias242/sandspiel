@@ -31,6 +31,8 @@
         <span class="brand-sub">lemmings</span>
         <span id="level-name"></span>
         <button id="levels" class="small" title="Level select">levels</button>
+        <button id="restart" class="small" title="Restart (R)">retry</button>
+        <button id="music" class="small" title="Music (B)">music on</button>
         <button id="sound" class="small" title="Sound (M)">sound on</button>
       </header>
 
@@ -46,22 +48,29 @@
         <span id="hover-info"></span>
         <span class="stat">OUT <b id="stat-out">0</b></span>
         <span class="stat">IN <b id="stat-in">0%</b></span>
-        <span class="stat">TIME <b id="stat-time">0:00</b></span>
+        <span class="stat">TIME <b id="stat-time">0-00</b></span>
       </div>
 
       <div id="toolbar">
-        <div class="rate">
-          <button id="rate-down" title="Slower release (-)">&minus;</button>
-          <span class="rate-value"><b id="rate">50</b><small>release</small></span>
-          <button id="rate-up" title="Faster release (+)">+</button>
+        <div id="panel">
+          <button id="rate-down" class="pbtn" title="Slower release (-)">
+            <span class="count" id="rate-min">50</span><canvas width="32" height="32"></canvas>
+          </button>
+          <button id="rate-up" class="pbtn" title="Faster release (+)">
+            <span class="count" id="rate">50</span><canvas width="32" height="32"></canvas>
+          </button>
+          <div id="skills"></div>
+          <button id="pause" class="pbtn tool" title="Pause (P)">
+            <span class="count"></span><canvas width="32" height="32"></canvas>
+          </button>
+          <button id="fast" class="pbtn tool" title="Fast forward (F)">
+            <span class="count"></span><canvas width="32" height="32"></canvas>
+          </button>
+          <button id="nuke" class="pbtn tool" title="Nuke (N, twice)">
+            <span class="count"></span><canvas width="32" height="32"></canvas>
+          </button>
         </div>
-        <div id="skills"></div>
-        <div class="controls">
-          <button id="pause" title="Pause (P)">pause</button>
-          <button id="fast" title="Fast forward (F)">fast</button>
-          <button id="restart" title="Restart (R)">retry</button>
-          <button id="nuke" title="Nuke (N, twice)">nuke</button>
-        </div>
+        <canvas id="minimap" width="240" height="240" title="Overview"></canvas>
       </div>
     </div>
   </body>
