@@ -166,6 +166,38 @@ const SOLUTIONS = {
     // fly off as harmless gas, and the lemmings drop 40 cells onto the exit.
     rule("basher", (l) => walking(l) && l.dir > 0 && l.x >= 201 && l.x <= 205, 1, 600),
   ],
+  "Drink up": (() => {
+    // The solution clicks like a human. The first rule never assigns anything: it tracks the
+    // lemmings so that a click goes to the lemming we mean (not another one on the same cell),
+    // remembers where right-walkers bounce off the vine curtain, and notes when a basher there
+    // has finished.
+    const seen = new Map();
+    let lastFrame = -1, bounceX = null, bounceF = -1, bashEnd = -1, curtainF = -1;
+    const track = (l, f) => {
+      if (f < lastFrame) { seen.clear(); bounceX = null; bounceF = -1; bashEnd = -1; curtainF = -1; }
+      lastFrame = f;
+      const p = seen.get(l.index);
+      if (p && p.dir > 0 && l.dir < 0 && l.x >= 200 && l.x < 280) { bounceX = l.x; bounceF = f; }
+      if (p && p.state === LemState.Bashing && l.state !== LemState.Bashing && l.x >= 200 && l.x < 300) bashEnd = f;
+      seen.set(l.index, { x: l.x, y: l.y, dir: l.dir, state: l.state, f });
+      return false;
+    };
+    const atCurtain = (l, f) => walking(l) && l.dir > 0 && bounceX !== null && l.x >= bounceX - 3 && l.x <= bounceX && first(l, f);
+    // A click on a cell picks the lowest-numbered lemming standing there.
+    const first = (l, f) => [...seen].every(([i, p]) => i >= l.index || p.f !== f || p.x !== l.x || p.y !== l.y);
+    return [
+      rule("climber", track),
+      // Wait until the room is dry (about 30 s), then bash in from the pen.
+      rule("basher", (l, f) => walking(l) && l.dir > 0 && l.x >= 23 && l.x < 30 && first(l, f), 1, 1800),
+      // The lemmings bounce off the vines: bash the curtain with the next one that walks up to it.
+      rule("basher", (l, f) => { if (!(curtainF < 0 && atCurtain(l, f))) return false; curtainF = f; return true; }),
+      // Spare: if they bounce there again after that basher has finished (a vine grew back), bash again.
+      rule("basher", (l, f) => {
+        if (!(curtainF >= 0 && bashEnd > curtainF && bounceF > bashEnd && atCurtain(l, f))) return false;
+        curtainF = f; return true;
+      }),
+    ];
+  })(),
 };
 
 function play(level, solution, { seed = 0, verbose = false } = {}) {

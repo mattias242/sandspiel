@@ -392,6 +392,36 @@ export const LEVELS = [
     },
   },
   {
+    name: "Drink up",
+    material: "Plant",
+    music: "plant",
+    hint: "Plants drink water and grow into it, so give them time. Their vines hang down and block the way, but you can bash through.",
+    lemmings: 10, save: 8, releaseRate: 50, seconds: 240,
+    entrance: [18, 96], exit: [302, 140], dir: 1,
+    skills: { basher: 3 },
+    build(u, S) {
+      // Ground, a steel bed and a cave roof.
+      rect(u, 0, 141, WIDTH, HEIGHT - 141, S.Dirt);
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      rect(u, 0, 0, WIDTH, 60, S.Dirt);
+      terrain(u, 0, WIDTH, (x) => 40 + 8 * Math.sin(x / 23) + 3 * Math.sin(x / 7), 60, S.Empty);
+      rect(u, 0, 80, 6, 61, S.Wall);
+      // The flooded room: dirt walls, water 9 deep, rocks on its floor (they keep a basher
+      // going through the leftover plant), a tiny plant in the far corner.
+      rect(u, 30, 116, 6, 25, S.Dirt);
+      rect(u, 176, 116, 6, 25, S.Dirt);
+      rect(u, 36, 132, 140, 9, S.Water);
+      for (let x = 40; x < 176; x += 6) rect(u, x, 139, 2, 2, S.Dirt);
+      rect(u, 174, 139, 2, 2, S.Plant);
+      // A low roof with plant under it: its vines curtain off the path. A thin plant pillar
+      // at its left edge reaches the floor, so the curtain always starts at the same spot and
+      // a basher cuts every vine (an uncut vine left of the cut could creep down later).
+      rect(u, 216, 100, 60, 27, S.Dirt);
+      rect(u, 220, 127, 52, 3, S.Plant);
+      rect(u, 220, 130, 1, 11, S.Plant);
+    },
+  },
+  {
     name: "Seedbed",
     material: "Seed",
     music: "seed",
