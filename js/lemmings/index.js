@@ -15,6 +15,9 @@ import {
 import { sounds } from "./sounds";
 
 const STEP_MS = 1000 / 60;
+// While we're testing, any level can be picked from the level list.
+// Set to false to unlock them one by one again.
+const UNLOCK_ALL = true;
 const HATCH_DELAY = 90;
 const STRIDE = 8;
 const STATE_NAMES = Object.keys(LemState).filter((k) => isNaN(Number(k)));
@@ -173,7 +176,7 @@ function showIntro() {
   const dots = LEVELS.map(
     (_, j) =>
       `<button class="dot${j === i ? " current" : ""}" data-level="${j}" ${
-        j > state.unlocked ? "disabled" : ""
+        j > state.unlocked && !UNLOCK_ALL ? "disabled" : ""
       } title="Level ${j + 1}">${j + 1}</button>`
   ).join("");
   showCard(
