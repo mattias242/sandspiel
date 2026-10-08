@@ -23,6 +23,7 @@ module.exports = (env, argv) => {
         "manifest.json",
         { from: "assets/*" },
         { from: "assets/sounds/*" },
+        { from: "assets/sounds/music/*" },
       ],
     }),
     new HtmlWebpackPlugin({ template: "index.html", chunks: ["main"] }),
@@ -39,8 +40,8 @@ module.exports = (env, argv) => {
       new GenerateSW({
         navigateFallback: "index.html",
         navigateFallbackDenylist: [/^\/lemmings/],
-        // The music is fetched on demand instead of precached.
-        exclude: [/\.map$/, /^manifest.*\.js$/, /music\.mp3$/],
+        // Music is fetched on demand instead of precached.
+        exclude: [/\.map$/, /^manifest.*\.js$/, /music\.mp3$/, /sounds\/music\//],
         runtimeCaching: [
           {
             urlPattern: /\.html$/,

@@ -25,6 +25,10 @@ let musicOn = true;
 let musicWanted = false;
 let musicNode = null;
 let musicGain = null;
+// Buffer key of the track the current level wants: "music/<name>", or
+// "music" (the shared tune) when a level has none.
+let musicTrack = "music";
+const trackLoads = {};
 const buffers = {};
 const lastPlayed = {};
 let loading = null;
@@ -57,12 +61,14 @@ function load(name) {
 }
 
 function loadAll() {
-  if (!loading) {
-    loading = Promise.all([...Object.keys(SAMPLES), "music"].map(load)).then(() => {
-      if (musicWanted) startMusic();
-    });
-  }
+  if (!loading) loading = Promise.all(Object.keys(SAMPLES).map(load));
   return loading;
+}
+
+// Music is loaded per level, on demand.
+function loadTrack(key) {
+  if (!trackLoads[key]) trackLoads[key] = load(key).then(() => buffers[key]);
+  return trackLoads[key];
 }
 
 // Plays a sample if it has loaded. Returns false so callers can fall back.
@@ -125,12 +131,13 @@ function noise(duration, volume = 0.25) {
 function startMusic() {
   if (musicNode || muted || !musicOn || !musicWanted) return;
   const ac = audio();
-  if (!ac || !buffers.music) return;
+  const buffer = buffers[musicTrack];
+  if (!ac || !buffer) return;
   musicGain = ac.createGain();
   musicGain.gain.setValueAtTime(0.0001, ac.currentTime);
   musicGain.gain.exponentialRampToValueAtTime(MUSIC_VOLUME, ac.currentTime + 1.5);
   musicNode = ac.createBufferSource();
-  musicNode.buffer = buffers.music;
+  musicNode.buffer = buffer;
   musicNode.loop = true;
   musicNode.connect(musicGain).connect(ac.destination);
   musicNode.start();
@@ -163,10 +170,24 @@ export const sounds = {
     if (musicOn) startMusic();
     else stopMusic();
   },
-  music: (play) => {
+  // Plays the level's own track (assets/sounds/music/<track>.mp3), or the
+  // shared tune if it has none or it fails to load.
+  music: (play, track) => {
     musicWanted = play;
-    if (play) startMusic();
-    else stopMusic();
+    if (!play) {
+      stopMusic();
+      return;
+    }
+    const key = track ? `music/${track}` : "music";
+    musicTrack = key;
+    loadTrack(key).then((buffer) => {
+      if (musicTrack !== key) return;
+      if (buffer) startMusic();
+      else if (key !== "music") {
+        musicTrack = "music";
+        loadTrack("music").then(() => musicTrack === "music" && startMusic());
+      }
+    });
   },
   select: () => sample("select") || tone(660, 0.05, { volume: 0.03 }),
   assign: () => sample("assign", { gap: 0.05 }) || tone(880, 0.07, { slide: 1.5 }),
