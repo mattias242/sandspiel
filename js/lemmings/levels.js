@@ -185,4 +185,69 @@ export const LEVELS = [
       terrain(u, 212, 272, (x) => 84 + 0.012 * Math.pow(x - 242, 2), 100, S.Sand);
     },
   },
+  {
+    name: "Let it flow",
+    material: "Water",
+    music: "water",
+    hint:
+      "Lemmings can wade through shallow water, but deep water drowns them. Water that runs onto lava turns it to stone.",
+    lemmings: 15,
+    save: 12,
+    releaseRate: 50,
+    seconds: 120,
+    entrance: [136, 58],
+    exit: [288, 124],
+    dir: -1,
+    skills: { blocker: 1, basher: 2 },
+    build(u, S) {
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      // Deep lake on the left, behind a low ridge.
+      rect(u, 0, 60, 6, 172, S.Dirt);
+      rect(u, 6, 140, 38, 92, S.Dirt);
+      rect(u, 6, 100, 38, 40, S.Water);
+      rect(u, 44, 100, 10, 132, S.Dirt);
+      // Shallow lagoon (3 deep) where the lemmings land, held by a dirt dam.
+      rect(u, 54, 103, 96, 129, S.Dirt);
+      rect(u, 54, 100, 96, 3, S.Water);
+      rect(u, 150, 56, 16, 176, S.Dirt);
+      // A gentle slope down to a lava moat that is flush with its banks.
+      terrain(u, 166, 214, (x) => 103 + ((x - 166) * 22) / 48, HEIGHT - 8, S.Dirt);
+      rect(u, 214, 145, 50, 87, S.Dirt);
+      rect(u, 214, 125, 50, 20, S.Lava);
+      // The exit bank, and a sump on the far right for the overflow.
+      rect(u, 264, 125, 36, 107, S.Dirt);
+      rect(u, 300, 200, 16, 32, S.Dirt);
+      rect(u, 316, 60, 4, 172, S.Dirt);
+    },
+  },
+  {
+    name: "Thin ice",
+    material: "Ice",
+    music: "ice",
+    hint:
+      "Ice slowly freezes any water it touches. Lemmings can walk on ice and dig through it, but only where the lake has frozen.",
+    lemmings: 12,
+    save: 10,
+    releaseRate: 50,
+    seconds: 120,
+    entrance: [52, 66],
+    exit: [278, 149],
+    dir: 1,
+    skills: { basher: 1, digger: 2 },
+    build(u, S) {
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      // The pen: back wall and floor.
+      rect(u, 0, 30, 14, 202, S.Dirt);
+      rect(u, 14, 110, 82, 122, S.Dirt);
+      // The ice door, reaching down to the lake bed.
+      rect(u, 96, 44, 8, 88, S.Ice);
+      // Lake bed and the rock below it.
+      rect(u, 96, 132, 224, 100, S.Dirt);
+      // The lake: 196 wide, 22 deep, up to the right-hand cliff.
+      rect(u, 104, 110, 196, 22, S.Water);
+      rect(u, 300, 40, 20, 92, S.Dirt);
+      // The exit cave, under the middle of the lake.
+      rect(u, 170, 136, 120, 14, S.Empty);
+    },
+  },
 ];

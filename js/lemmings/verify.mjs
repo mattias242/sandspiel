@@ -60,6 +60,18 @@ const SOLUTIONS = {
     rule("basher", (l) => walking(l) && l.dir === 1 && l.x >= 182 && l.x < 190),
     rule("digger", (l) => walking(l) && l.x >= 235 && l.x < 250 && l.y < 102),
   ],
+  "Let it flow": [
+    // Stop the first lemming before it reaches the deep lake.
+    rule("blocker", (l) => walking(l) && l.dir < 0 && l.x <= 100),
+    // The next one turns back at the blocker; bash the dam when it gets there.
+    rule("basher", (l) => walking(l) && l.dir > 0 && l.x >= 146),
+  ],
+  "Thin ice": [
+    // Wait for the ice to spread over the cave, then open the door.
+    rule("basher", (l) => walking(l) && l.dir > 0 && l.x >= 92, 1, 1800),
+    // The first one out digs down through the frozen lake into the cave.
+    rule("digger", (l) => walking(l) && l.dir > 0 && l.x >= 176 && l.y < 112),
+  ],
 };
 
 function play(level, solution, { seed = 0, verbose = false } = {}) {
