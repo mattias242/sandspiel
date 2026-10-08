@@ -251,6 +251,42 @@ export const LEVELS = [
     },
   },
   {
+    name: "Rock bottom",
+    material: "Stone",
+    music: "stone",
+    hint: "Stone drops straight down the moment nothing holds it up. It can fill a pit for you, but it fills your tunnels too.",
+    lemmings: 20,
+    save: 16,
+    releaseRate: 50,
+    seconds: 180,
+    entrance: [45, 112],
+    exit: [300, 194],
+    dir: 1,
+    skills: { basher: 3, digger: 1 },
+    build(u, S) {
+      // Left meadow with a low hump under the hatch, flat near the pit.
+      terrain(u, 0, 153, (x) => 150 - 5 * Math.exp(-Math.pow((x - 45) / 28, 2)), HEIGHT, S.Dirt);
+      // The pit (x 153..192, 40 deep). Its floor steps up under the first three
+      // columns, where the basher shaves cells off the falling stone, so the
+      // block lands flush with the ground.
+      rect(u, 153, 190, 40, HEIGHT - 190, S.Dirt);
+      rect(u, 153, 179, 1, 11, S.Dirt);
+      rect(u, 154, 183, 1, 7, S.Dirt);
+      rect(u, 155, 185, 1, 5, S.Dirt);
+      // Middle ground up to the cliff, and the low cavern with the exit.
+      rect(u, 193, 150, 67, HEIGHT - 150, S.Dirt);
+      rect(u, 260, 195, WIDTH - 260, HEIGHT - 195, S.Dirt);
+      rect(u, 0, 236, WIDTH, 4, S.Wall);
+      // The block: 40 x 40 of stone spanning the pit, resting on a 12-high
+      // shoulder on the near side and a 3-high toe on the far side.
+      rect(u, 150, 138, 3, 12, S.Stone);
+      rect(u, 153, 110, 40, 40, S.Stone);
+      rect(u, 193, 147, 3, 3, S.Stone);
+      // The boulder: tunnel through it and it sinks into the tunnel.
+      terrain(u, 232, 252, (x) => 116 + 4 * Math.pow((x - 241.5) / 10, 2), 150, S.Stone);
+    },
+  },
+  {
     name: "Burning bridges",
     material: "Wood",
     music: "wood",
@@ -315,6 +351,44 @@ export const LEVELS = [
       rect(u, 165, 44, 4, 60, S.Wood);
       rect(u, 8, 40, 161, 4, S.Wood);
       rect(u, 8, 44, 4, 100, S.Wood);
+    },
+  },
+  {
+    name: "Acid test",
+    material: "Acid",
+    music: "acid",
+    hint: "Acid eats everything except steel, even solid stone. Drop the pillar in, but keep your bridges out of the acid.",
+    lemmings: 20,
+    save: 15,
+    releaseRate: 1,
+    seconds: 200,
+    entrance: [25, 88],
+    exit: [300, 149],
+    dir: 1,
+    skills: { builder: 3, basher: 1 },
+    build(u, S) {
+      // Hatch hill and a ramp down to a pond of acid, flush with the ground.
+      terrain(u, 0, 60, (x) => 115 - 5 * Math.exp(-Math.pow((x - 25) / 16, 2)), HEIGHT, S.Dirt);
+      terrain(u, 60, 90, (x) => 115 + (x - 60) / 2, HEIGHT, S.Dirt);
+      rect(u, 90, 130, 1, 16, S.Wall);
+      rect(u, 105, 130, 1, 16, S.Wall);
+      rect(u, 90, 144, 16, 2, S.Wall);
+      rect(u, 91, 130, 14, 14, S.Acid);
+      rect(u, 90, 146, 16, HEIGHT - 146, S.Dirt);
+      // Lower ground beyond the pond (a 20-high drop, so nobody walks back).
+      rect(u, 106, 150, WIDTH - 106, HEIGHT - 150, S.Dirt);
+      // A steel vat under the floor: 40 rows of air above 30 rows of acid, so
+      // a falling pillar is entirely inside the vat before it reaches the acid.
+      rect(u, 167, 155, 42, 72, S.Wall);
+      rect(u, 168, 155, 40, 70, S.Empty);
+      rect(u, 168, 195, 40, 30, S.Acid);
+      rect(u, 183, 150, 5, 5, S.Empty); // the hole in the floor
+      // A 30-high stone pillar plugs the hole, resting on a 9-high shoulder
+      // (near side) and a 3-high toe (far side).
+      rect(u, 180, 141, 3, 9, S.Stone);
+      rect(u, 183, 120, 5, 30, S.Stone);
+      rect(u, 188, 147, 3, 3, S.Stone);
+      rect(u, 0, 236, WIDTH, 4, S.Wall);
     },
   },
 ];

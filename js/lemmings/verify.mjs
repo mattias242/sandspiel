@@ -82,6 +82,24 @@ const SOLUTIONS = {
     // Wait until the barricade has burned away, then bash out of the pen.
     rule("basher", (l) => walking(l) && l.dir > 0 && l.x >= 94 && l.x <= 99, 1, 1200),
   ],
+  "Rock bottom": [
+    // Bash the block's shoulder: the block loses its near support and drops
+    // column by column into the pit, filling it flush.
+    rule("basher", (l) => walking(l) && l.x >= 145 && l.x <= 149 && l.dir === 1),
+    // Dig down in front of the boulder...
+    rule("digger", (l) => walking(l) && l.x >= 222 && l.x <= 228 && l.dir === 1),
+    // ...and, once a lemming-height deep, bash under it through the dirt.
+    rule("basher", (l) => l.state === LemState.Digging && l.y >= 160),
+  ],
+  "Acid test": [
+    // Bridge the pond from part-way down the ramp, so no brick touches the acid.
+    rule("builder", (l) => walking(l) && l.x >= 80 && l.x <= 86 && l.dir === 1),
+    // Bash the pillar's shoulder: it drops into the vat and dissolves (and the
+    // basher with it).
+    rule("basher", (l) => walking(l) && l.x >= 172 && l.x <= 179 && l.dir === 1),
+    // The next lemming bridges the hole the pillar leaves.
+    rule("builder", (l) => walking(l) && l.x >= 177 && l.x <= 182 && l.dir === 1, 1, 740),
+  ],
 };
 
 function play(level, solution, { seed = 0, verbose = false } = {}) {
