@@ -17,7 +17,9 @@ let startWebGL = ({ canvas, universe, isSnapshot = false, lemmings = false }) =>
   const height = universe.height();
   let cell_pointer = universe.cells();
   let cells = new Uint8Array(memory.buffer, cell_pointer, width * height * 4);
-  const dataTexture = regl.texture({ width, height, data: cells });
+  // Cells are stored column by column, so the texture is the transposed
+  // world: one texture row per world column. The shader swaps back.
+  const dataTexture = regl.texture({ width: height, height: width, data: cells });
 
   let drawSand = regl({
     frag: fsh,
@@ -31,7 +33,7 @@ let startWebGL = ({ canvas, universe, isSnapshot = false, lemmings = false }) =>
         cells = new Uint8Array(memory.buffer, cell_pointer, width * height * 4);
         // }
 
-        return dataTexture({ width, height, data: cells });
+        return dataTexture({ width: height, height: width, data: cells });
       },
       resolution: ({ viewportWidth, viewportHeight }) => [
         viewportWidth,

@@ -282,7 +282,7 @@ button.small:hover {
 }
 
 #minimap {
-  width: 66px;
+  width: 88px;
   height: 66px;
   align-self: center;
   border: 3px solid var(--hud);
@@ -319,6 +319,17 @@ button.small:hover {
 
 .card-kicker {
   color: var(--blue);
+}
+
+.card-material {
+  margin-top: 6px;
+  color: var(--yellow);
+  text-transform: uppercase;
+}
+
+.card-material b {
+  font-weight: inherit;
+  color: #fff;
 }
 
 #card h1 {

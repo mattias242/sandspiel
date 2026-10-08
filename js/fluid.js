@@ -45,8 +45,10 @@ function iOS() {
 
 const isIOS = iOS();
 function startFluid({ universe }) {
-  canvas.width = universe.width();
-  canvas.height = universe.height();
+  // The fluid grid is the transposed world, matching how cells are stored
+  // (column by column), so it can read and write them directly.
+  canvas.width = universe.height();
+  canvas.height = universe.width();
   let config = {
     TEXTURE_DOWNSAMPLE: 0,
     DENSITY_DISSIPATION: 0.98,
@@ -435,8 +437,9 @@ function startFluid({ universe }) {
     };
   }
 
-  const width = universe.width();
-  const height = universe.height();
+  // Transposed, like the canvas above.
+  const width = universe.height();
+  const height = universe.width();
 
   const blit = (() => {
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
@@ -882,8 +885,8 @@ function startFluid({ universe }) {
     );
     gl.uniform2f(
       splatProgram.uniforms.point,
-      y / canvas.height,
-      x / canvas.width
+      y / canvas.width,
+      x / canvas.height
     );
     gl.uniform3f(splatProgram.uniforms.color, dy, dx, 1.0);
     gl.uniform1f(

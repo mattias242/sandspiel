@@ -2,7 +2,7 @@ import "./lemmings.css";
 import { Universe, Lemmings, Species, LemState } from "../../crate/pkg";
 import { startWebGL } from "../render";
 import { startFluid } from "../fluid";
-import { LEVELS, SKILLS, SIZE } from "./levels";
+import { LEVELS, SKILLS, WIDTH, HEIGHT } from "./levels";
 import {
   drawLemming,
   drawSelection,
@@ -32,12 +32,12 @@ const minimap = $("minimap");
 const miniCtx = minimap.getContext("2d");
 const card = $("card");
 
-const universe = Universe.new(SIZE, SIZE);
+const universe = Universe.new(WIDTH, HEIGHT);
 const game = Lemmings.new();
 
 const dpr = Math.ceil(window.devicePixelRatio || 1);
-sandCanvas.width = SIZE * dpr;
-sandCanvas.height = SIZE * dpr;
+sandCanvas.width = WIDTH * dpr;
+sandCanvas.height = HEIGHT * dpr;
 
 const fluid = startFluid({ universe });
 const drawSand = startWebGL({ canvas: sandCanvas, universe, lemmings: true });
@@ -118,7 +118,7 @@ function startLevel() {
   state.playing = true;
   sounds.unlock();
   sounds.letsgo();
-  sounds.music(true);
+  sounds.music(true, level().music);
 }
 
 function finishLevel() {
@@ -181,6 +181,7 @@ function showIntro() {
   ).join("");
   showCard(
     `<div class="card-kicker">Level ${i + 1} of ${LEVELS.length}</div>
+     ${lv.material ? `<div class="card-material">New material: <b>${lv.material}</b></div>` : ""}
      <h1>${lv.name}</h1>
      <ul class="facts">
        <li>Number of Lemmings <b>${lv.lemmings}</b></li>
@@ -402,8 +403,8 @@ document.addEventListener("keydown", (e) => {
 function cellAt(e) {
   const rect = lemCanvas.getBoundingClientRect();
   return {
-    x: ((e.clientX - rect.left) / rect.width) * SIZE,
-    y: ((e.clientY - rect.top) / rect.height) * SIZE,
+    x: ((e.clientX - rect.left) / rect.width) * WIDTH,
+    y: ((e.clientY - rect.top) / rect.height) * HEIGHT,
   };
 }
 
@@ -462,6 +463,9 @@ function lemmingList() {
 }
 
 function step() {
+  // The world stays frozen until the level starts, so every attempt begins
+  // from the same state (and matches verify.mjs).
+  if (!state.playing && !state.finished) return;
   universe.tick();
   if (!state.playing) return;
   game.tick(universe);
@@ -489,8 +493,8 @@ function explosionParticles(x, y) {
 
 function drawOverlay(lems) {
   const w = lemCanvas.width;
-  const cell = w / SIZE;
-  lemCtx.clearRect(0, 0, w, w);
+  const cell = w / WIDTH;
+  lemCtx.clearRect(0, 0, w, lemCanvas.height);
   const lv = level();
   const frame = game.frame();
   const opening = state.playing ? Math.min(1, frame / (HATCH_DELAY - 10)) : 0;
@@ -627,7 +631,7 @@ function loop(now) {
 function drawMinimap(lems) {
   if (!minimap.offsetParent) return;
   miniCtx.drawImage(sandCanvas, 0, 0, minimap.width, minimap.height);
-  const k = minimap.width / SIZE;
+  const k = minimap.width / WIDTH;
   miniCtx.fillStyle = "#ffef5a";
   for (const l of lems) miniCtx.fillRect(Math.round(l.x * k) - 1, Math.round((l.y - 4) * k) - 1, 3, 4);
 }
@@ -637,17 +641,23 @@ function drawMinimap(lems) {
 function layout() {
   const bars =
     $("topbar").offsetHeight + $("status").offsetHeight + $("toolbar").offsetHeight;
-  const avail = Math.min(window.innerWidth - 16, window.innerHeight - bars - 24);
-  const size = Math.max(160, Math.floor(avail));
+  // The stage keeps the world's 4:3 shape.
+  const avail = Math.min(
+    window.innerWidth - 16,
+    ((window.innerHeight - bars - 24) * WIDTH) / HEIGHT
+  );
+  const width = Math.max(200, Math.floor(avail));
+  const height = Math.round((width * HEIGHT) / WIDTH);
   const stage = $("stage");
-  stage.style.width = `${size}px`;
-  stage.style.height = `${size}px`;
-  const px = Math.round(size * (window.devicePixelRatio || 1));
-  if (lemCanvas.width !== px) {
-    lemCanvas.width = px;
-    lemCanvas.height = px;
+  stage.style.width = `${width}px`;
+  stage.style.height = `${height}px`;
+  const ratio = window.devicePixelRatio || 1;
+  const pw = Math.round(width * ratio);
+  if (lemCanvas.width !== pw) {
+    lemCanvas.width = pw;
+    lemCanvas.height = Math.round(height * ratio);
   }
-  document.documentElement.style.setProperty("--stage", `${size}px`);
+  document.documentElement.style.setProperty("--stage", `${width}px`);
 }
 window.addEventListener("resize", layout);
 layout();
