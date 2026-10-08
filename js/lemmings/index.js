@@ -666,4 +666,5 @@ loadLevel(state.levelIndex);
 showIntro();
 requestAnimationFrame(loop);
 
-window.lemmings = { game, universe, loadLevel, startLevel, state };
+// For tests: scripts drive the game and can swap in level definitions.
+window.lemmings = { game, universe, loadLevel, startLevel, state, LEVELS };
