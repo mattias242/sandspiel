@@ -391,4 +391,79 @@ export const LEVELS = [
       rect(u, 0, 236, WIDTH, 4, S.Wall);
     },
   },
+  {
+    name: "Seedbed",
+    material: "Seed",
+    music: "seed",
+    hint: "Seeds that land on sand sprout into tall stalks that stop lemmings like a wall. On dirt they just pile up.",
+    lemmings: 10, save: 8, releaseRate: 50, seconds: 180,
+    entrance: [190, 105], exit: [16, 140], dir: 1,
+    skills: { basher: 2 },
+    build(u, S) {
+      // Cave roof and ground.
+      rect(u, 0, 0, WIDTH, 56, S.Dirt);
+      terrain(u, 0, WIDTH, (x) => 34 + 6 * Math.sin(x / 17) + 3 * Math.sin(x / 5), 56, S.Empty);
+      rect(u, 0, 150, 272, 82, S.Dirt);
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      rect(u, 272, 205, 48, 27, S.Lava);
+      // Seed pocket in the roof over the sand bed at the cliff edge: a fence of stalks.
+      rect(u, 228, 24, 40, 24, S.Dirt);
+      rect(u, 232, 26, 32, 14, S.Seed);
+      for (let x = 240; x <= 258; x += 6) rect(u, x, 40, 1, 8, S.Empty);
+      rect(u, 236, 150, 28, 3, S.Sand);
+      // A thin pocket that sprinkles seeds onto plain dirt: they just lie there.
+      rect(u, 124, 30, 100, 18, S.Dirt);
+      rect(u, 128, 34, 92, 2, S.Seed);
+      for (let x = 130; x < 220; x += 9) rect(u, x, 36, 1, 12, S.Empty);
+      // Low tunnel (exactly 9 rows high, so a basher clears every stalk) to the exit,
+      // with a sand floor and seeds lying on it.
+      rect(u, 48, 100, 64, 41, S.Dirt);
+      rect(u, 66, 150, 36, 3, S.Sand);
+      for (let x = 68; x <= 100; x += 4) rect(u, x, 149, 1, 1, S.Seed);
+      // Exit platform, 9 high; a pocket above its foot piles seeds up into a ramp.
+      rect(u, 0, 141, 30, 9, S.Dirt);
+      rect(u, 22, 24, 22, 24, S.Dirt);
+      rect(u, 26, 26, 14, 12, S.Seed);
+      rect(u, 31, 38, 1, 10, S.Empty);
+    },
+  },
+  {
+    name: "Soft landing",
+    material: "Fungus",
+    music: "fungus",
+    hint: "Fungus creeps over dirt and plugs small holes, which can catch a falling lemming or trap it. It cannot grow on ice.",
+    lemmings: 10, save: 8, releaseRate: 70, seconds: 240,
+    entrance: [20, 86], exit: [282, 204], dir: 1,
+    skills: { builder: 2, digger: 2 },
+    build(u, S) {
+      // Cave roof, ground, steel floor.
+      rect(u, 0, 0, WIDTH, 50, S.Dirt);
+      const roof = (x) => Math.round(28 + 6 * Math.sin(x / 19) + 3 * Math.sin(x / 6));
+      terrain(u, 0, WIDTH, roof, 50, S.Empty);
+      // Fungus creeping over the dirt roof, far above the lemmings.
+      rect(u, 150, roof(150), 3, 2, S.Fungus);
+      rect(u, 262, roof(262), 3, 2, S.Fungus);
+      rect(u, 0, 131, WIDTH, HEIGHT - 131, S.Dirt);
+      rect(u, 0, 232, WIDTH, 8, S.Wall);
+      rect(u, 0, 60, 6, 71, S.Wall);
+      // Upper walkway of ice, split by a crack lined with ice: nothing will fill it.
+      rect(u, 6, 131, 194, 2, S.Ice);
+      rect(u, 117, 131, 9, 94, S.Ice);
+      rect(u, 120, 131, 3, 94, S.Empty);
+      // A step down to the landing; the landing ends at an ice wall.
+      rect(u, 200, 131, 46, 12, S.Empty);
+      rect(u, 200, 143, 40, 2, S.Ice);
+      rect(u, 240, 96, 6, 47, S.Ice);
+      // The deep well: ice-lined, with a dirt collar half way down where fungus grows.
+      rect(u, 214, 145, 11, 46, S.Ice);
+      rect(u, 214, 178, 11, 6, S.Dirt);
+      rect(u, 218, 143, 3, 48, S.Empty);
+      rect(u, 218, 180, 1, 2, S.Fungus);
+      rect(u, 220, 180, 1, 2, S.Fungus);
+      // The exit cave below, lined with ice.
+      rect(u, 150, 190, 150, 17, S.Ice);
+      rect(u, 152, 191, 146, 14, S.Empty);
+      rect(u, 218, 190, 3, 1, S.Empty);
+    },
+  },
 ];

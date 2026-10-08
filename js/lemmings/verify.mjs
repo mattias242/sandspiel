@@ -100,6 +100,56 @@ const SOLUTIONS = {
     // The next lemming bridges the hole the pillar leaves.
     rule("builder", (l) => walking(l) && l.x >= 177 && l.x <= 182 && l.dir === 1, 1, 740),
   ],
+  "Seedbed": (() => {
+    // The first rule never assigns anything: it tracks the lemmings so that a click goes to the
+    // lemming we mean (not another one standing on the same cell), as a human would click.
+    const seen = new Map();
+    let lastFrame = -1;
+    const track = (l, f) => {
+      if (f < lastFrame) seen.clear();
+      lastFrame = f;
+      seen.set(l.index, { x: l.x, y: l.y, f });
+      return false;
+    };
+    // A click on a cell picks the lowest-numbered lemming standing there.
+    const first = (l, f) => [...seen].every(([i, p]) => i >= l.index || p.f !== f || p.x !== l.x || p.y !== l.y);
+    return [
+      rule("climber", track),
+      // Bash the hedge in the tunnel when a lemming walks up to it (the last stalk grows from x=100).
+      rule("basher", (l, f) => walking(l) && l.dir < 0 && l.x >= 101 && l.x <= 108 && first(l, f)),
+    ];
+  })(),
+  "Soft landing": (() => {
+    // The solution clicks like a human. The first rule never assigns anything: it tracks the
+    // lemmings so that a click goes to the lemming we mean (not another one on the same cell).
+    const seen = new Map();
+    let lastFrame = -1;
+    const track = (l, f) => {
+      if (f < lastFrame) seen.clear();
+      lastFrame = f;
+      seen.set(l.index, { x: l.x, y: l.y, state: l.state, f });
+      return false;
+    };
+    const now = (f) => [...seen].filter(([, p]) => p.f === f);
+    // A click on a cell picks the lowest-numbered lemming standing there.
+    const first = (l, f) => now(f).every(([i, p]) => i >= l.index || p.x !== l.x || p.y !== l.y);
+    const inWell = (p) => p.x >= 216 && p.x <= 222 && p.y > 143;
+    const onLanding = (p) => p.x >= 201 && p.x <= 239 && p.y <= 143 && p.y >= 120;
+    // Everybody is caught in the well (or, if fungus fills the well to the brim, everybody is
+    // on the landing around it; or 40 s have passed), and l is the highest lemming over the well.
+    const ready = (l, f) => {
+      const a = now(f).map(([, p]) => p);
+      if (!a.length || !(a.every(inWell) || a.every(onLanding) || f > 2400)) return false;
+      return l.x >= 217 && l.x <= 221 && a.every((p) => !(p.x >= 216 && p.x <= 222) || p.y >= l.y);
+    };
+    return [
+      rule("climber", track),
+      // The ice crack never fills: the first lemming to reach it builds over it.
+      rule("builder", (l, f) => walking(l) && l.dir > 0 && l.x >= 117 && l.x <= 119 && first(l, f)),
+      // Everybody is caught on the fungus plug in the well: the top one digs through it.
+      rule("digger", (l, f) => walking(l) && first(l, f) && ready(l, f)),
+    ];
+  })(),
 };
 
 function play(level, solution, { seed = 0, verbose = false } = {}) {
