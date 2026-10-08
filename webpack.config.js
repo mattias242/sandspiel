@@ -103,7 +103,11 @@ module.exports = (env, argv) => {
       },
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: [
+          "style-loader",
+          // Absolute URLs point at files copied from assets/, so leave them be.
+          { loader: "css-loader", options: { url: (url) => !url.startsWith("/") } },
+        ],
       },
 
       {

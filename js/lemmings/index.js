@@ -6,9 +6,11 @@ import { LEVELS, SKILLS, SIZE } from "./levels";
 import {
   drawLemming,
   drawSelection,
+  drawCursor,
   drawHatch,
   drawExit,
   drawIcon,
+  drawPanelIcon,
 } from "./sprites";
 import { sounds } from "./sounds";
 
@@ -23,6 +25,8 @@ const sandCanvas = $("sand-canvas");
 const fluidCanvas = $("fluid-canvas");
 const lemCanvas = $("lem-canvas");
 const lemCtx = lemCanvas.getContext("2d");
+const minimap = $("minimap");
+const miniCtx = minimap.getContext("2d");
 const card = $("card");
 
 const universe = Universe.new(SIZE, SIZE);
@@ -33,7 +37,7 @@ sandCanvas.width = SIZE * dpr;
 sandCanvas.height = SIZE * dpr;
 
 const fluid = startFluid({ universe });
-const drawSand = startWebGL({ canvas: sandCanvas, universe });
+const drawSand = startWebGL({ canvas: sandCanvas, universe, lemmings: true });
 
 const storage = {
   get(key, fallback) {
@@ -60,11 +64,12 @@ const state = {
   fast: false,
   skill: -1,
   hover: null,
+  pointer: null,
   nukeArmed: 0,
   particles: [],
   lastFuses: new Map(),
+  lastStates: new Map(),
   lastSaved: 0,
-  lastDead: 0,
   frameCount: 0,
 };
 state.levelIndex = state.unlocked;
@@ -93,8 +98,9 @@ function loadLevel(index) {
   state.fast = false;
   state.particles = [];
   state.lastFuses = new Map();
+  state.lastStates = new Map();
   state.lastSaved = 0;
-  state.lastDead = 0;
+  sounds.music(false);
   state.nukeArmed = 0;
   const first = SKILLS.findIndex((name) => lv.skills[name]);
   state.skill = first;
@@ -109,11 +115,13 @@ function startLevel() {
   state.playing = true;
   sounds.unlock();
   sounds.letsgo();
+  sounds.music(true);
 }
 
 function finishLevel() {
   state.playing = false;
   state.finished = true;
+  sounds.music(false);
   const lv = level();
   const saved = game.saved();
   const won = saved >= lv.save;
@@ -130,10 +138,11 @@ function finishLevel() {
 /* ---------- Cards ---------- */
 
 const pct = (n, total) => `${Math.round((100 * n) / total)}%`;
-const clock = (s) => {
+const clock = (s, sep = ":") => {
   s = Math.max(0, Math.ceil(s));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  return `${Math.floor(s / 60)}${sep}${String(s % 60).padStart(2, "0")}`;
 };
+const minutes = (s) => (s % 60 ? clock(s) : `${s / 60} minute${s === 60 ? "" : "s"}`);
 
 function hideCard() {
   card.classList.add("hidden");
@@ -170,13 +179,13 @@ function showIntro() {
   showCard(
     `<div class="card-kicker">Level ${i + 1} of ${LEVELS.length}</div>
      <h1>${lv.name}</h1>
-     <p class="hint">${lv.hint}</p>
      <ul class="facts">
-       <li><b>${lv.lemmings}</b> lemmings</li>
-       <li>save <b>${lv.save}</b> (${pct(lv.save, lv.lemmings)})</li>
-       <li>release rate <b>${lv.releaseRate}</b></li>
-       <li>time <b>${clock(lv.seconds)}</b></li>
+       <li>Number of Lemmings <b>${lv.lemmings}</b></li>
+       <li><b>${pct(lv.save, lv.lemmings)}</b> To Be Saved</li>
+       <li>Release Rate <b>${lv.releaseRate}</b></li>
+       <li>Time <b>${minutes(lv.seconds)}</b></li>
      </ul>
+     <p class="hint">${lv.hint}</p>
      <ul class="skills-list">${skillList(lv)}</ul>
      ${best ? `<p class="best">Best: ${best} saved</p>` : ""}
      <button class="primary" id="go">Let's go!</button>
@@ -198,12 +207,14 @@ function showResult(won, saved) {
   if (!won) title = saved === 0 ? "Oh no!" : "Not quite";
   else if (saved === lv.lemmings) title = "Superb!";
   else title = "You did it!";
+  const allOut = game.released() === lv.lemmings && game.out() === 0;
   const next = won && !last;
   showCard(
     `<div class="card-kicker">Level ${state.levelIndex + 1}: ${lv.name}</div>
      <h1>${title}</h1>
-     <p class="score">You saved <b>${pct(saved, lv.lemmings)}</b>
-       <span>(${saved} of ${lv.lemmings}). You needed ${pct(lv.save, lv.lemmings)}.</span></p>
+     <p class="score">${allOut ? "All lemmings accounted for.<br>" : "Your time is up!<br>"}
+       You rescued <b>${pct(saved, lv.lemmings)}</b>
+       <span>You needed ${pct(lv.save, lv.lemmings)}</span></p>
      ${
        won && last
          ? `<p class="hint">That was the last level. The sand is all yours.</p>`
@@ -237,14 +248,27 @@ function showResult(won, saved) {
 
 const skillButtons = SKILLS.map((name, i) => {
   const b = document.createElement("button");
-  b.className = "skill";
+  b.className = "pbtn skill";
   b.title = `${name} (${i + 1})`;
-  b.innerHTML = `<span class="count"></span><canvas width="44" height="44"></canvas><span class="label">${name}</span>`;
+  b.innerHTML = `<span class="count"></span><canvas width="32" height="32"></canvas>`;
   drawIcon(b.querySelector("canvas"), name);
   b.addEventListener("click", () => selectSkill(i));
   $("skills").appendChild(b);
   return b;
 });
+// The skills go between the release rate and the tool buttons.
+$("panel").insertBefore($("skills"), $("pause"));
+for (const [id, icon] of [
+  ["rate-down", "minus"],
+  ["rate-up", "plus"],
+  ["pause", "pause"],
+  ["fast", "fast"],
+  ["nuke", "nuke"],
+]) {
+  drawPanelIcon($(id).querySelector("canvas"), icon);
+}
+
+const twoDigits = (n) => String(n).padStart(2, "0");
 
 function selectSkill(i) {
   if (!level().skills[SKILLS[i]]) return;
@@ -256,7 +280,7 @@ function selectSkill(i) {
 function renderSkills() {
   skillButtons.forEach((b, i) => {
     const count = game.skill_count(i);
-    b.querySelector(".count").textContent = count || "";
+    b.querySelector(".count").textContent = count ? twoDigits(count) : "";
     b.classList.toggle("selected", i === state.skill);
     b.classList.toggle("empty", count === 0);
     b.classList.toggle("absent", !level().skills[SKILLS[i]]);
@@ -320,6 +344,13 @@ function nuke() {
   updateHud();
 }
 
+function toggleMusic() {
+  sounds.setMusicOn(!sounds.musicOn());
+  storage.set("lemmings.music", sounds.musicOn());
+  $("music").textContent = sounds.musicOn() ? "music on" : "music off";
+}
+if (!storage.get("lemmings.music", true)) toggleMusic();
+
 function toggleSound() {
   sounds.setMuted(!sounds.muted());
   storage.set("lemmings.muted", sounds.muted());
@@ -332,6 +363,12 @@ $("fast").addEventListener("click", toggleFast);
 $("restart").addEventListener("click", restart);
 $("nuke").addEventListener("click", nuke);
 $("sound").addEventListener("click", toggleSound);
+$("music").addEventListener("click", toggleMusic);
+// Start loading the samples on the first gesture, so they are ready by the
+// time the level starts.
+["pointerdown", "keydown"].forEach((ev) =>
+  document.addEventListener(ev, () => sounds.unlock(), { capture: true, once: true })
+);
 $("levels").addEventListener("click", () => {
   loadLevel(state.levelIndex);
   showIntro();
@@ -346,6 +383,7 @@ document.addEventListener("keydown", (e) => {
   else if (k === "r" && state.playing) restart();
   else if (k === "n") nuke();
   else if (k === "m") toggleSound();
+  else if (k === "b") toggleMusic();
   else if (k === "-" || k === "_") changeRate(-5);
   else if (k === "+" || k === "=") changeRate(5);
   else if (k === "enter" && !state.playing && !card.classList.contains("hidden")) {
@@ -370,10 +408,12 @@ lemCanvas.addEventListener("pointermove", (e) => {
   const { x, y } = cellAt(e);
   const i = game.lemming_at(x, y);
   state.hover = i >= 0 ? i : null;
+  state.pointer = e.pointerType === "mouse" ? { x, y } : null;
 });
 
 lemCanvas.addEventListener("pointerleave", () => {
   state.hover = null;
+  state.pointer = null;
 });
 
 lemCanvas.addEventListener("pointerdown", (e) => {
@@ -422,11 +462,12 @@ function step() {
   universe.tick();
   if (!state.playing) return;
   game.tick(universe);
+  if (game.frame() === HATCH_DELAY - 45) sounds.hatch();
   if (game.saved() > state.lastSaved) sounds.saved();
-  if (game.dead() > state.lastDead) sounds.die();
   state.lastSaved = game.saved();
-  state.lastDead = game.dead();
 }
+
+const DEATHS = ["Splatting", "Drowning", "Burning", "Dissolving"];
 
 function explosionParticles(x, y) {
   for (let i = 0; i < 26; i++) {
@@ -462,14 +503,34 @@ function drawOverlay(lems) {
       sounds.boom();
     }
   }
+  // Like the original: "Oh no!" as a bomber's fuse runs out.
+  for (const [index, l] of fuses) {
+    const before = state.lastFuses.get(index);
+    if (l.fuse === 1 && before && before.fuse > 1) sounds.ohno();
+  }
   state.lastFuses = fuses;
 
+  const states = new Map();
+  for (const l of lems) {
+    states.set(l.index, l.state);
+    if (DEATHS.includes(l.state) && state.lastStates.get(l.index) !== l.state) {
+      sounds.die(l.state);
+    }
+  }
+  state.lastStates = states;
+
+  // Lemmings walk under a still mouse, so look again every frame.
+  if (state.pointer) {
+    const i = game.lemming_at(state.pointer.x, state.pointer.y);
+    state.hover = i >= 0 ? i : null;
+  }
   let hovered = null;
   for (const l of lems) {
     drawLemming(lemCtx, l, cell, state.frameCount);
     if (l.index === state.hover) hovered = l;
   }
   if (hovered) drawSelection(lemCtx, hovered, cell);
+  else if (state.pointer) drawCursor(lemCtx, state.pointer.x * cell, state.pointer.y * cell, cell);
 
   state.particles = state.particles.filter((p) => p.life > 0);
   for (const p of state.particles) {
@@ -506,7 +567,7 @@ function updateHover(l) {
     if (l.flags & 1) tags.push("climber");
     if (l.flags & 2) tags.push("floater");
     if (l.fuse) tags.push("bomber");
-    text = [SKILL_NAMES[l.state] || "", ...tags].filter(Boolean).join(" + ");
+    text = [SKILL_NAMES[l.state] || "", ...tags].filter(Boolean).join("+");
   }
   const el = $("hover-info");
   if (el.textContent !== text) el.textContent = text;
@@ -515,16 +576,17 @@ function updateHover(l) {
 function updateHud() {
   const lv = level();
   $("stat-out").textContent = game.out();
-  $("stat-in").textContent = pct(game.saved(), lv.lemmings);
+  $("stat-in").textContent = `${twoDigits(Math.round((100 * game.saved()) / lv.lemmings))}%`;
   const left = lv.seconds - game.frame() / 60;
-  $("stat-time").textContent = clock(left);
+  $("stat-time").textContent = clock(left, "-");
   $("stat-time").classList.toggle("low", state.playing && left < 30);
-  $("rate").textContent = game.release_rate();
+  $("rate").textContent = twoDigits(game.release_rate());
+  $("rate-min").textContent = twoDigits(game.min_release_rate());
   $("pause").classList.toggle("on", state.paused);
   $("fast").classList.toggle("on", state.fast);
   const armed = performance.now() - state.nukeArmed < 1500;
   $("nuke").classList.toggle("armed", armed || game.nuking());
-  $("nuke").textContent = armed ? "sure?" : "nuke";
+  $("nuke").querySelector(".count").textContent = armed ? "??" : "";
   document.body.classList.toggle("paused", state.paused);
 }
 
@@ -551,9 +613,20 @@ function loop(now) {
   }
   state.frameCount++;
   drawSand();
-  drawOverlay(lemmingList());
+  const lems = lemmingList();
+  drawOverlay(lems);
+  drawMinimap(lems);
   updateHud();
   requestAnimationFrame(loop);
+}
+
+// The whole level in miniature, with the lemmings as yellow dots.
+function drawMinimap(lems) {
+  if (!minimap.offsetParent) return;
+  miniCtx.drawImage(sandCanvas, 0, 0, minimap.width, minimap.height);
+  const k = minimap.width / SIZE;
+  miniCtx.fillStyle = "#ffef5a";
+  for (const l of lems) miniCtx.fillRect(Math.round(l.x * k) - 1, Math.round((l.y - 4) * k) - 1, 3, 4);
 }
 
 /* ---------- Layout ---------- */

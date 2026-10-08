@@ -4,13 +4,13 @@
 // when walking left. The feet sit on the bottom row.
 
 const PALETTE = {
-  g: "#46d046", // hair
-  h: "#2f9a35", // hair shade
-  s: "#f3c9a1", // skin
-  b: "#4f63ff", // robe
-  d: "#3443c4", // robe shade
+  g: "#1fd01f", // hair
+  h: "#0c860c", // hair shade
+  s: "#f7d4c6", // skin
+  b: "#3d48f2", // robe
+  d: "#2329a8", // robe shade
   w: "#ffffff",
-  t: "#c98a4b", // wooden brick
+  t: "#dc9a52", // wooden brick
   k: "#7a4a24", // handle
   p: "#b9bec9", // steel
   r: "#e8423b",
@@ -324,7 +324,7 @@ export function drawLemming(ctx, l, cell, frameCount) {
   drawSprite(ctx, name, frame, x, y, dir, cell);
 
   if (l.fuse > 0) {
-    ctx.font = `bold ${Math.max(9, cell * 3.2)}px Inconsolata, monospace`;
+    ctx.font = `${cell < 4 ? 16 : 32}px ChiKareGo, Inconsolata, monospace`;
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
     ctx.lineWidth = Math.max(2, cell * 0.8);
@@ -337,76 +337,122 @@ export function drawLemming(ctx, l, cell, frameCount) {
   }
 }
 
-// Corner brackets around the lemming under the cursor.
+// A square around the lemming under the cursor, like the original.
 export function drawSelection(ctx, l, cell) {
-  const left = (l.x - 2.5) * cell;
-  const right = (l.x + 3.5) * cell;
-  const top = (l.y - 8.5) * cell;
-  const bottom = (l.y + 1.5) * cell;
-  const len = cell * 1.5;
-  ctx.strokeStyle = "#fff";
-  ctx.lineWidth = Math.max(1, cell * 0.4);
-  ctx.beginPath();
-  for (const [cx, cy, sx, sy] of [
-    [left, top, 1, 1],
-    [right, top, -1, 1],
-    [left, bottom, 1, -1],
-    [right, bottom, -1, -1],
-  ]) {
-    ctx.moveTo(cx + sx * len, cy);
-    ctx.lineTo(cx, cy);
-    ctx.lineTo(cx, cy + sy * len);
-  }
-  ctx.stroke();
+  const size = 10 * cell;
+  const left = (l.x + 0.5) * cell - size / 2;
+  const top = (l.y - 3) * cell - size / 2;
+  const w = Math.max(1, Math.round(cell * 0.5));
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(left, top, size, w);
+  ctx.fillRect(left, top + size - w, size, w);
+  ctx.fillRect(left, top, w, size);
+  ctx.fillRect(left + size - w, top, w, size);
 }
 
+// Green crosshair cursor, drawn in cell units with a gap in the middle.
+export function drawCursor(ctx, x, y, cell) {
+  const w = Math.max(1, Math.round(cell * 0.5));
+  ctx.fillStyle = "#26e026";
+  for (let i = 2; i <= 4; i++) {
+    const d = i * cell * 0.75;
+    ctx.fillRect(x + d - w / 2, y - w / 2, w, w);
+    ctx.fillRect(x - d - w / 2, y - w / 2, w, w);
+    ctx.fillRect(x - w / 2, y + d - w / 2, w, w);
+    ctx.fillRect(x - w / 2, y - d - w / 2, w, w);
+  }
+}
+
+// A wooden trapdoor box; the doors swing down as it opens.
 export function drawHatch(ctx, x, y, cell, open) {
-  const w = 12;
+  const w = 14;
   const left = (x - w / 2 + 0.5) * cell;
   const top = (y - 14) * cell;
-  ctx.fillStyle = "#5b5f6b";
-  ctx.fillRect(left - 2 * cell, top - cell, (w + 4) * cell, 6 * cell);
-  ctx.fillStyle = "#8a8f9c";
-  for (let i = 0; i < w + 4; i += 3) {
-    ctx.fillRect(left - 2 * cell + i * cell, top - cell, cell, cell);
-  }
-  ctx.fillStyle = "#16131c";
-  ctx.fillRect(left, top + cell, w * cell, 4 * cell);
-  // Two trapdoors swing down from the edges as the hatch opens.
-  const flap = (w / 2) * cell;
-  ctx.fillStyle = "#a0673a";
+  const c = cell;
+  ctx.fillStyle = "#4a2a0e";
+  ctx.fillRect(left - 2 * c, top - 2 * c, (w + 4) * c, 8 * c);
+  ctx.fillStyle = "#b8742e";
+  ctx.fillRect(left - 1.5 * c, top - 1.5 * c, (w + 3) * c, 7 * c);
+  ctx.fillStyle = "#e3a65a";
+  ctx.fillRect(left - 1.5 * c, top - 1.5 * c, (w + 3) * c, c);
+  ctx.fillStyle = "#7a4718";
+  for (let i = 0; i < w + 3; i += 4) ctx.fillRect(left - 1.5 * c + i * c, top - 0.5 * c, 0.6 * c, 5.5 * c);
+  // The opening, with a glimpse of the waiting crowd.
+  ctx.fillStyle = "#06061c";
+  ctx.fillRect(left, top + c, w * c, 4 * c);
+  ctx.fillStyle = "#1a7a1a";
+  for (let i = 1; i < w - 1; i += 3) ctx.fillRect(left + i * c, top + 1.5 * c, 1.5 * c, c);
+  ctx.fillStyle = "#2a32a8";
+  for (let i = 1; i < w - 1; i += 3) ctx.fillRect(left + i * c, top + 2.5 * c, 1.5 * c, 1.5 * c);
+  const flap = (w / 2) * c;
   for (const side of [-1, 1]) {
     ctx.save();
-    ctx.translate(side < 0 ? left : left + w * cell, top + 5 * cell);
-    ctx.rotate(-side * open * Math.PI * 0.42);
-    ctx.fillRect(side < 0 ? 0 : -flap, 0, flap, cell * 1.2);
+    ctx.translate(side < 0 ? left : left + w * c, top + 5 * c);
+    ctx.rotate(-side * open * Math.PI * 0.45);
+    ctx.fillStyle = "#4a2a0e";
+    ctx.fillRect(side < 0 ? 0 : -flap, 0, flap, c * 1.4);
+    ctx.fillStyle = "#c98840";
+    ctx.fillRect(side < 0 ? 0 : -flap, 0, flap, c * 0.9);
     ctx.restore();
   }
 }
 
+// A golden arch with a blue doorway and two burning torches.
 export function drawExit(ctx, x, y, cell, t) {
-  const left = (x - 6 + 0.5) * cell;
-  const right = (x + 6 + 0.5) * cell;
-  const top = (y - 13) * cell;
-  const bottom = (y + 1) * cell;
-  ctx.fillStyle = "#0b0a0f";
+  const c = cell;
+  const cx = (x + 0.5) * c;
+  const bottom = (y + 1) * c;
+  const half = 8 * c;
+  const height = 15 * c;
+  ctx.fillStyle = "#6b4512";
   ctx.beginPath();
-  ctx.moveTo(left + 2 * cell, bottom);
-  ctx.lineTo(left + 2 * cell, top + 5 * cell);
-  ctx.arc((left + right) / 2, top + 5 * cell, (right - left) / 2 - 2 * cell, Math.PI, 0);
-  ctx.lineTo(right - 2 * cell, bottom);
+  ctx.moveTo(cx - half - c, bottom);
+  ctx.lineTo(cx - 2.5 * c, bottom - height - c);
+  ctx.lineTo(cx + 2.5 * c, bottom - height - c);
+  ctx.lineTo(cx + half + c, bottom);
   ctx.fill();
-  ctx.fillStyle = "#9a8b74";
-  ctx.fillRect(left, top + 2 * cell, 2 * cell, bottom - top - 2 * cell);
-  ctx.fillRect(right - 2 * cell, top + 2 * cell, 2 * cell, bottom - top - 2 * cell);
-  ctx.fillStyle = "#c7b493";
-  ctx.fillRect(left - cell, top + cell, right - left + 2 * cell, 1.5 * cell);
-  for (const fx of [left, right - 2 * cell]) {
-    const h = 2.5 + Math.sin(t / 3 + fx) * 0.8 + Math.random() * 0.6;
-    ctx.fillStyle = "#ff8a1a";
-    ctx.fillRect(fx, top + cell - h * cell, 2 * cell, h * cell);
+  ctx.fillStyle = "#f0b53c";
+  ctx.beginPath();
+  ctx.moveTo(cx - half, bottom);
+  ctx.lineTo(cx - 2 * c, bottom - height);
+  ctx.lineTo(cx + 2 * c, bottom - height);
+  ctx.lineTo(cx + half, bottom);
+  ctx.fill();
+  ctx.fillStyle = "#ffe08a";
+  ctx.beginPath();
+  ctx.moveTo(cx - half + c, bottom);
+  ctx.lineTo(cx - 2 * c, bottom - height + c);
+  ctx.lineTo(cx - 1 * c, bottom - height + c);
+  ctx.lineTo(cx - half + 3 * c, bottom);
+  ctx.fill();
+  // Doorway
+  ctx.fillStyle = "#6b4512";
+  ctx.beginPath();
+  ctx.moveTo(cx - 3.5 * c, bottom);
+  ctx.lineTo(cx - 3.5 * c, bottom - 5 * c);
+  ctx.arc(cx, bottom - 5 * c, 3.5 * c, Math.PI, 0);
+  ctx.lineTo(cx + 3.5 * c, bottom);
+  ctx.fill();
+  ctx.fillStyle = "#2434e8";
+  ctx.beginPath();
+  ctx.moveTo(cx - 2.5 * c, bottom);
+  ctx.lineTo(cx - 2.5 * c, bottom - 5 * c);
+  ctx.arc(cx, bottom - 5 * c, 2.5 * c, Math.PI, 0);
+  ctx.lineTo(cx + 2.5 * c, bottom);
+  ctx.fill();
+  ctx.fillStyle = "#6f7dff";
+  ctx.fillRect(cx - 1.5 * c, bottom - 6 * c, c, 6 * c);
+  // Torches on the shoulders.
+  for (const side of [-1, 1]) {
+    const tx = cx + side * 5.5 * c - 0.5 * c;
+    const ty = bottom - 10 * c;
+    ctx.fillStyle = "#4a2a0e";
+    ctx.fillRect(tx, ty, c, 4 * c);
+    const h = 2.5 + Math.sin(t / 3 + side) * 0.7 + Math.random() * 0.6;
+    ctx.fillStyle = "#ff5a14";
+    ctx.fillRect(tx - 0.5 * c, ty - h * c, 2 * c, h * c);
     ctx.fillStyle = "#ffe14a";
-    ctx.fillRect(fx + 0.5 * cell, top + cell - (h - 1) * cell, cell, (h - 1) * cell);
+    ctx.fillRect(tx, ty - (h - 0.8) * c, c, (h - 0.8) * c);
   }
 }
 
@@ -432,9 +478,95 @@ export function drawIcon(canvas, skill) {
   if (skill === "floater") drawUmbrella(ctx, x - 0.5, y + 2.5, 1, cell * 0.8, 0);
   drawSprite(ctx, name, frame, x, y, 1, cell);
   if (skill === "bomber") {
-    ctx.font = `bold ${cell * 3}px Inconsolata, monospace`;
+    ctx.font = "16px ChiKareGo, Inconsolata, monospace";
     ctx.textAlign = "center";
     ctx.fillStyle = "#fff";
     ctx.fillText("5", (x + 0.5) * cell, cell * 1.6);
   }
+}
+
+// Pixel icons for the panel's other buttons.
+const PANEL_ICONS = {
+  minus: [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    ".gggggggggggggg.",
+    ".gggggggggggggg.",
+    ".hhhhhhhhhhhhhh.",
+    "................",
+  ],
+  plus: [
+    "................",
+    "................",
+    "......gggg......",
+    "......gggg......",
+    "......gggg......",
+    ".gggggggggggggg.",
+    ".gggggggggggggg.",
+    ".hhhhhggggghhhh.",
+    "......gggg......",
+    "......gggg......",
+    "......hhhh......",
+  ],
+  pause: [
+    "..........ww.ww.",
+    ".........ww.ww..",
+    "..ww.ww...wwwww.",
+    ".ww.ww...wwwwww.",
+    "..wwwww..wwwww..",
+    ".wwwwww...www...",
+    ".wwwww..........",
+    "..www...........",
+    "................",
+    "................",
+    "................",
+  ],
+  fast: [
+    "................",
+    "................",
+    ".yy.....yy......",
+    ".yyyy...yyyy....",
+    ".yyyyyy.yyyyyy..",
+    ".yyyyyyyyyyyyyy.",
+    ".yyyyyy.yyyyyy..",
+    ".yyyy...yyyy....",
+    ".yy.....yy......",
+    "................",
+    "................",
+  ],
+  nuke: [
+    "....oooooooo....",
+    "..oooyyyyyyooo..",
+    ".ooyyyyyyyyyyoo.",
+    ".oyyywwwwwwyyyo.",
+    "..ooyyyyyyyyoo..",
+    "....ooyyyyoo....",
+    "......oyyo......",
+    "......oyyo......",
+    ".....ooyyoo.....",
+    "...ooyyyyyyoo...",
+    "..rrrrrrrrrrrr..",
+  ],
+};
+const PANEL_COLORS = {
+  g: "#2fe02f",
+  h: "#0c860c",
+  w: "#ffffff",
+  y: "#ffe14a",
+  o: "#ff7a1a",
+  r: "#c8321e",
+};
+
+export function drawPanelIcon(canvas, name) {
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const rows = PANEL_ICONS[name];
+  const px = canvas.width / 16;
+  const top = (canvas.height - rows.length * px) / 2;
+  drawRows(ctx, rows, 0, top, px, (ch) => PANEL_COLORS[ch], 1);
 }

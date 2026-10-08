@@ -7,7 +7,7 @@ const memory = wasm.memory;
 let fsh = require("./glsl/sand.glsl");
 let vsh = require("./glsl/sandVertex.glsl");
 
-let startWebGL = ({ canvas, universe, isSnapshot = false }) => {
+let startWebGL = ({ canvas, universe, isSnapshot = false, lemmings = false }) => {
   const regl = reglBuilder({
     canvas,
     attributes: { preserveDrawingBuffer: isSnapshot },
@@ -39,6 +39,8 @@ let startWebGL = ({ canvas, universe, isSnapshot = false }) => {
       ],
       dpi: window.devicePixelRatio * 2,
       isSnapshot,
+      lemmings,
+      size: [width, height],
       // backBuffer: lastFrame
     },
 
